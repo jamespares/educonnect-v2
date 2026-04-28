@@ -1,0 +1,28 @@
+name = "educonnect-v2"
+main = "src/server/index.ts"
+compatibility_date = "2025-04-01"
+
+[build]
+command = "npm run build"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "educonnect-db"
+database_id = "bbaa2565-a171-4659-9dce-fd2b45fa3cc2"
+migrations_dir = "./migrations"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "educonnect-assets"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+[vars]
+STRIPE_PUBLISHABLE_KEY = "pk_test_..."
+
+# Secrets (set via wrangler secret put):
+# STRIPE_SECRET_KEY
+# SESSION_SECRET
+# STRIPE_WEBHOOK_SECRET (for production webhook verification)
