@@ -4,9 +4,8 @@ import Stripe from 'stripe'
 import { createDb } from '../../db'
 import { teacherProfiles, users } from '../../db/schema'
 import { requireAuth, requireRole } from '../auth'
-import type { Env } from '../auth'
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 // POST /api/payments/create-checkout-session
 app.post('/create-checkout-session', requireAuth, requireRole('teacher'), async (c) => {

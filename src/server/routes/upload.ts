@@ -3,9 +3,8 @@ import { eq } from 'drizzle-orm'
 import { createDb } from '../../db'
 import { teacherProfiles } from '../../db/schema'
 import { requireAuth } from '../auth'
-import type { Env } from '../auth'
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 // POST /api/upload — upload file to R2
 app.post('/', requireAuth, async (c) => {

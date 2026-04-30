@@ -5,9 +5,8 @@ import { eq, desc, and, like, sql } from 'drizzle-orm'
 import { createDb } from '../../db'
 import { jobs, schoolProfiles } from '../../db/schema'
 import { requireAuth, requireRole } from '../auth'
-import type { Env } from '../auth'
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 // Public: GET /api/jobs (list)
 app.get('/', async (c) => {

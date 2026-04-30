@@ -4,15 +4,9 @@ import { createDb } from '../db'
 import { sessions, users } from '../db/schema'
 import { eq } from 'drizzle-orm'
 
-export interface Env {
-  DB: D1Database
-  BUCKET: R2Bucket
-  STRIPE_SECRET_KEY: string
-  SESSION_SECRET: string
-  ASSETS: Fetcher
-}
+export interface Env extends CloudflareBindings {}
 
-export type AppContext = Context<{ Bindings: Env }>
+export type AppContext = Context<{ Bindings: CloudflareBindings }>
 
 const SESSION_COOKIE = 'session'
 const SESSION_DAYS = 7
@@ -86,7 +80,7 @@ export async function deleteSession(db: ReturnType<typeof createDb>, token: stri
 }
 
 // ─── Auth Middleware ──────────────────────────────────────────────
-export const requireAuth: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
+export const requireAuth: MiddlewareHandler<{ Bindings: CloudflareBindings }> = async (c, next) => {
   const token = getCookie(c, SESSION_COOKIE)
   const db = createDb(c.env.DB)
   const user = await validateSession(db, token || '')
@@ -97,7 +91,7 @@ export const requireAuth: MiddlewareHandler<{ Bindings: Env }> = async (c, next)
   await next()
 }
 
-export const requireRole = (...roles: string[]): MiddlewareHandler<{ Bindings: Env }> => async (c, next) => {
+export const requireRole = (...roles: string[]): MiddlewareHandler<{ Bindings: CloudflareBindings }> => async (c, next) => {
   const user = c.get('user' as never) as Awaited<ReturnType<typeof validateSession>>
   if (!user || !roles.includes(user.role)) {
     return c.json({ error: 'Forbidden' }, 403)

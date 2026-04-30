@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { getCookie } from 'hono/cookie'
+import { getCookie, deleteCookie } from 'hono/cookie'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { createDb } from '../../db'
@@ -12,9 +12,11 @@ import {
   clearSessionCookie,
   validateSession,
 } from '../auth'
-import type { Env } from '../auth'
+import { users } from '../../db/schema'
+import { eq } from 'drizzle-orm'
+import { createAuth } from '../lib/auth'
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -27,7 +29,11 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-// POST /api/auth/register
+const setRoleSchema = z.object({
+  role: z.enum(['teacher', 'school']),
+})
+
+// POST /api/auth/register — Legacy register (kept for backward compatibility)
 app.post('/register', zValidator('json', registerSchema), async (c) => {
   try {
     const { email, password, role } = c.req.valid('json')
@@ -41,7 +47,7 @@ app.post('/register', zValidator('json', registerSchema), async (c) => {
   }
 })
 
-// POST /api/auth/login
+// POST /api/auth/login — Legacy login (kept for backward compatibility)
 app.post('/login', zValidator('json', loginSchema), async (c) => {
   try {
     const { email, password } = c.req.valid('json')
@@ -63,6 +69,7 @@ app.post('/logout', async (c) => {
     await deleteSession(db, token)
   }
   clearSessionCookie(c)
+  deleteCookie(c, 'better-auth.session_token')
   return c.json({ ok: true })
 })
 
@@ -74,6 +81,46 @@ app.get('/me', async (c) => {
   const user = await validateSession(db, token)
   if (!user) return c.json({ user: null })
   return c.json({ user: { id: user.id, email: user.email, role: user.role } })
+})
+
+// POST /api/auth/set-role — Called after Better Auth registration to set role
+app.post('/set-role', async (c) => {
+  const body = await c.req.json()
+  const role = body.role
+  if (!role || !['teacher', 'school'].includes(role)) {
+    return c.json({ error: 'Invalid role' }, 400)
+  }
+
+  // Get current user from Better Auth session
+  const auth = createAuth(c.env)
+  try {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session?.user) {
+      return c.json({ error: 'Unauthorized' }, 401)
+    }
+
+    const db = createDb(c.env.DB)
+    const legacyUser = await db.select().from(users).where(eq(users.email, session.user.email)).get()
+
+    if (legacyUser) {
+      // Update existing user's role if they were created with default 'teacher'
+      if (legacyUser.role !== role) {
+        await db.update(users).set({ role }).where(eq(users.id, legacyUser.id))
+      }
+      return c.json({ ok: true, user: { id: legacyUser.id, email: legacyUser.email, role } })
+    }
+
+    // Create legacy user
+    const [newUser] = await db.insert(users).values({
+      email: session.user.email,
+      passwordHash: '',
+      role,
+    }).returning()
+
+    return c.json({ ok: true, user: { id: newUser.id, email: newUser.email, role } })
+  } catch (e: any) {
+    return c.json({ error: e.message || 'Failed to set role' }, 500)
+  }
 })
 
 export default app

@@ -16,17 +16,15 @@ binding = "BUCKET"
 bucket_name = "educonnect-assets"
 
 [assets]
-directory = "./dist"
+directory = "./public"
 binding = "ASSETS"
 
 [vars]
 STRIPE_PUBLISHABLE_KEY = "pk_test_..."
-
-send_email = [
-  { name = "SEND_EMAIL" }
-]
+BETTER_AUTH_URL = "https://educonnect-v2.my-account-337.workers.dev"
 
 # Secrets (set via wrangler secret put):
 # STRIPE_SECRET_KEY
 # SESSION_SECRET
+# BETTER_AUTH_SECRET
 # STRIPE_WEBHOOK_SECRET (for production webhook verification)

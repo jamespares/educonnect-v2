@@ -5,9 +5,8 @@ import { eq, and, desc, inArray } from 'drizzle-orm'
 import { createDb } from '../../db'
 import { applications, jobs, teacherProfiles, schoolProfiles } from '../../db/schema'
 import { requireAuth, requireRole } from '../auth'
-import type { Env } from '../auth'
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 app.use('*', requireAuth)
 
 // POST /api/applications (teacher applies)
