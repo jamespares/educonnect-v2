@@ -163,6 +163,13 @@ Vite proxies `/api` to `localhost:8787`, so the frontend talks to the same origi
 
 - `STRIPE_PUBLISHABLE_KEY` — Passed to frontend for Stripe.js
 
+### Email
+
+- `send_email` binding configured in `wrangler.toml`
+- All emails send from `team@educonnectchina.com`
+- Incoming emails forward to `jamesedpares@gmail.com`
+- Email worker: `src/email-worker.js` (deploy with `npx wrangler deploy --config wrangler-email.toml`)
+
 ---
 
 ## Code Organization Conventions

@@ -1,0 +1,10 @@
+name = "educonnectchina-email"
+main = "src/email-worker.js"
+compatibility_date = "2025-04-01"
+
+send_email = [
+  { name = "SEND_EMAIL" }
+]
+
+[vars]
+FORWARD_TO_EMAIL = "jamesedpares@gmail.com"

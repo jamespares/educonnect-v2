@@ -22,6 +22,10 @@ binding = "ASSETS"
 [vars]
 STRIPE_PUBLISHABLE_KEY = "pk_test_..."
 
+send_email = [
+  { name = "SEND_EMAIL" }
+]
+
 # Secrets (set via wrangler secret put):
 # STRIPE_SECRET_KEY
 # SESSION_SECRET
