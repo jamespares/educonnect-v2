@@ -19,6 +19,10 @@ bucket_name = "educonnect-assets"
 directory = "./public"
 binding = "ASSETS"
 
+send_email = [
+  { name = "SEND_EMAIL" }
+]
+
 [vars]
 STRIPE_PUBLISHABLE_KEY = "pk_test_..."
 BETTER_AUTH_URL = "https://educonnect-v2.my-account-337.workers.dev"

@@ -6,6 +6,7 @@ interface CloudflareBindings {
   BUCKET: R2Bucket;
   DB: D1Database;
   ASSETS: Fetcher;
+  SEND_EMAIL: SendEmail;
   STRIPE_PUBLISHABLE_KEY: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
